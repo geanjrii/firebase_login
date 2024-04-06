@@ -30,6 +30,28 @@ void main() {
   const testPassword = 'testP@ssw0rd1';
   const testConfirmedPassword = 'testP@ssw0rd1';
 
+  const invalidEmailString = 'invalid';
+  const invalidEmail = Email.dirty(invalidEmailString);
+
+  const validEmailString = 'test@gmail.com';
+  const validEmail = Email.dirty(validEmailString);
+
+  const validPasswordString = 't0pS3cret1234';
+  const validPassword = Password.dirty(validPasswordString);
+
+  const validConfirmedPasswordString = 't0pS3cret1234';
+  const validConfirmedPassword = ConfirmedPassword.dirty(
+    password: validPasswordString,
+    value: validConfirmedPasswordString,
+  );
+
+  const validForm = SignUpForm(
+      email: validEmail,
+      password: validPassword,
+      confirmedPassword: validConfirmedPassword);
+
+  const validFormSignUpState = SignUpState(signUpForm: validForm);
+
   group('SignUpForm', () {
     late SignUpCubit signUpCubit;
 
@@ -46,7 +68,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -61,7 +83,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -77,7 +99,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -94,14 +116,15 @@ void main() {
       testWidgets('signUpFormSubmitted when sign up button is pressed',
           (tester) async {
         when(() => signUpCubit.state).thenReturn(
-          const SignUpState(isValid: true),
+          // const SignUpState(isValid: true),
+          validFormSignUpState,
         );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -126,7 +149,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -139,13 +162,14 @@ void main() {
           (tester) async {
         final email = MockEmail();
         when(() => email.displayError).thenReturn(EmailValidationError.invalid);
-        when(() => signUpCubit.state).thenReturn(SignUpState(email: email));
+        when(() => signUpCubit.state).thenReturn(
+            const SignUpState(signUpForm: SignUpForm(email: invalidEmail)));
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -159,14 +183,14 @@ void main() {
         when(
           () => password.displayError,
         ).thenReturn(PasswordValidationError.invalid);
-        when(() => signUpCubit.state)
-            .thenReturn(SignUpState(password: password));
+        when(() => signUpCubit.state).thenReturn(
+            SignUpState(signUpForm: SignUpForm(password: password)));
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -181,14 +205,14 @@ void main() {
         when(
           () => confirmedPassword.displayError,
         ).thenReturn(ConfirmedPasswordValidationError.invalid);
-        when(() => signUpCubit.state)
-            .thenReturn(SignUpState(confirmedPassword: confirmedPassword));
+        when(() => signUpCubit.state).thenReturn(SignUpState(
+            signUpForm: SignUpForm(confirmedPassword: confirmedPassword)));
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -204,7 +228,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -218,14 +242,16 @@ void main() {
       testWidgets('enabled sign up button when status is validated',
           (tester) async {
         when(() => signUpCubit.state).thenReturn(
-          const SignUpState(isValid: true),
+          validFormSignUpState,
+
+          // const SignUpState(isValid: true),
         );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
@@ -252,14 +278,14 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: signUpCubit,
-                child: const SignUpForm(),
+                child: const SignUpPage(),
               ),
             ),
           ),
         );
-        expect(find.byType(SignUpForm), findsOneWidget);
+        expect(find.byType(SignUpPage), findsOneWidget);
         await tester.pumpAndSettle();
-        expect(find.byType(SignUpForm), findsNothing);
+        expect(find.byType(SignUpPage), findsNothing);
       });
     });
   });

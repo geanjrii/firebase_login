@@ -26,15 +26,15 @@ void main() {
 
     test('returns object with updated email when email is passed', () {
       expect(
-        LoginState().copyWith(email: mockEmail),
-        LoginState(email: mockEmail),
+        LoginState().copyWith(loginForm: LoginForm(email: mockEmail)),
+        LoginState(loginForm: LoginForm(email: mockEmail)),
       );
     });
 
     test('returns object with updated password when password is passed', () {
       expect(
-        LoginState().copyWith(password: mockPassword),
-        LoginState(password: mockPassword),
+        LoginState().copyWith(loginForm: LoginForm(password: mockPassword)),
+        LoginState(loginForm: LoginForm(password: mockPassword)),
       );
     });
   });

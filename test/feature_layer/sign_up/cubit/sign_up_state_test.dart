@@ -31,15 +31,15 @@ void main() {
 
     test('returns object with updated email when email is passed', () {
       expect(
-        SignUpState().copyWith(email: email),
-        SignUpState(email: email),
+        SignUpState().copyWith(signUpForm: SignUpForm(email: email)),
+        SignUpState(signUpForm: SignUpForm(email: email)),
       );
     });
 
     test('returns object with updated password when password is passed', () {
       expect(
-        SignUpState().copyWith(password: password),
-        SignUpState(password: password),
+        SignUpState().copyWith(signUpForm: SignUpForm(password: password)),
+        SignUpState(signUpForm: SignUpForm(password: password)),
       );
     });
 
@@ -47,8 +47,10 @@ void main() {
         'returns object with updated confirmedPassword'
         ' when confirmedPassword is passed', () {
       expect(
-        SignUpState().copyWith(confirmedPassword: confirmedPassword),
-        SignUpState(confirmedPassword: confirmedPassword),
+        SignUpState().copyWith(
+            signUpForm: SignUpForm(confirmedPassword: confirmedPassword)),
+        SignUpState(
+            signUpForm: SignUpForm(confirmedPassword: confirmedPassword)),
       );
     });
   });

@@ -76,7 +76,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(LoginPage), findsOneWidget);
+      expect(find.byType(LoginView), findsOneWidget);
     });
 
     testWidgets('navigates to HomePage when authenticated', (tester) async {

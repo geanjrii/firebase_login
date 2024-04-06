@@ -11,6 +11,6 @@ List<Page<dynamic>> onGenerateAppViewPages(
     case AuthenticationStatus.authenticated:
       return [HomePage.page()];
     case AuthenticationStatus.unauthenticated:
-      return [LoginPage.page()];
+      return [LoginView.page()];
   }
 }

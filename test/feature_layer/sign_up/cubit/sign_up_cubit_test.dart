@@ -35,6 +35,13 @@ void main() {
     value: validConfirmedPasswordString,
   );
 
+  const validForm = SignUpForm(
+      email: validEmail,
+      password: validPassword,
+      confirmedPassword: validConfirmedPassword);
+
+  const validFormSignUpState = SignUpState(signUpForm: validForm);
+
   group('SignUpCubit', () {
     late AuthenticationRepository authenticationRepository;
     late SignUpCubit signUpCubit;
@@ -47,7 +54,7 @@ void main() {
           password: any(named: 'password'),
         ),
       ).thenAnswer((_) async {});
-      signUpCubit =  SignUpCubit(authenticationRepository);
+      signUpCubit = SignUpCubit(authenticationRepository);
     });
 
     tearDown(() => signUpCubit.close());
@@ -61,25 +68,20 @@ void main() {
         'emits [invalid] when email/password/confirmedPassword are invalid',
         build: () => signUpCubit,
         act: (cubit) => cubit.onEmailChanged(invalidEmailString),
-        expect: () => const <SignUpState>[SignUpState(email: invalidEmail)],
+        expect: () =>
+            const [SignUpState(signUpForm: SignUpForm(email: invalidEmail))],
       );
 
       blocTest<SignUpCubit, SignUpState>(
         'emits [valid] when email/password/confirmedPassword are valid',
         build: () => signUpCubit,
         seed: () => SignUpState(
-          password: validPassword,
-          confirmedPassword: validConfirmedPassword,
-        ),
+            signUpForm: SignUpForm(
+                email: invalidEmail,
+                password: validPassword,
+                confirmedPassword: validConfirmedPassword)),
         act: (cubit) => cubit.onEmailChanged(validEmailString),
-        expect: () => const <SignUpState>[
-          SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
-        ],
+        expect: () => const [validFormSignUpState],
       );
     });
 
@@ -90,10 +92,12 @@ void main() {
         act: (cubit) => cubit.onPasswordChanged(invalidPasswordString),
         expect: () => const <SignUpState>[
           SignUpState(
-            confirmedPassword: ConfirmedPassword.dirty(
-              password: invalidPasswordString,
+            signUpForm: SignUpForm(
+              confirmedPassword: ConfirmedPassword.dirty(
+                password: invalidPasswordString,
+              ),
+              password: invalidPassword,
             ),
-            password: invalidPassword,
           ),
         ],
       );
@@ -102,18 +106,12 @@ void main() {
         'emits [valid] when email/password/confirmedPassword are valid',
         build: () => signUpCubit,
         seed: () => SignUpState(
-          email: validEmail,
-          confirmedPassword: validConfirmedPassword,
-        ),
+            signUpForm: SignUpForm(
+                email: validEmail,
+                password: invalidPassword,
+                confirmedPassword: validConfirmedPassword)),
         act: (cubit) => cubit.onPasswordChanged(validPasswordString),
-        expect: () => const <SignUpState>[
-          SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
-        ],
+        expect: () => const [validFormSignUpState],
       );
 
       blocTest<SignUpCubit, SignUpState>(
@@ -121,22 +119,20 @@ void main() {
         'passwordChanged is called',
         build: () => signUpCubit,
         seed: () => SignUpState(
-          email: validEmail,
-        ),
+            signUpForm: SignUpForm(
+                email: validEmail,
+                password: invalidPassword,
+                confirmedPassword: invalidConfirmedPassword)),
         act: (cubit) => cubit
           ..onConfirmedPasswordChanged(validConfirmedPasswordString)
           ..onPasswordChanged(validPasswordString),
-        expect: () => const <SignUpState>[
+        expect: () => const [
           SignUpState(
-            email: validEmail,
-            confirmedPassword: validConfirmedPassword,
-          ),
-          SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              signUpForm: SignUpForm(
+                  email: validEmail,
+                  password: invalidPassword,
+                  confirmedPassword: validConfirmedPassword)),
+          validFormSignUpState
         ],
       );
     });
@@ -148,50 +144,44 @@ void main() {
         act: (cubit) {
           cubit.onConfirmedPasswordChanged(invalidConfirmedPasswordString);
         },
-        expect: () => const <SignUpState>[
-          SignUpState(confirmedPassword: invalidConfirmedPassword),
+        expect: () => const [
+          SignUpState(
+              signUpForm:
+                  SignUpForm(confirmedPassword: invalidConfirmedPassword)),
         ],
       );
 
       blocTest<SignUpCubit, SignUpState>(
         'emits [valid] when email/password/confirmedPassword are valid',
         build: () => signUpCubit,
-        seed: () => SignUpState(email: validEmail, password: validPassword),
+        seed: () => SignUpState(
+            signUpForm: SignUpForm(
+                email: validEmail,
+                password: validPassword,
+                confirmedPassword: invalidConfirmedPassword)),
         act: (cubit) => cubit.onConfirmedPasswordChanged(
           validConfirmedPasswordString,
         ),
-        expect: () => const <SignUpState>[
-          SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
-        ],
+        expect: () => const [validFormSignUpState],
       );
 
       blocTest<SignUpCubit, SignUpState>(
         'emits [valid] when passwordChanged is called first and then '
         'confirmedPasswordChanged is called',
         build: () => signUpCubit,
-        seed: () => SignUpState(email: validEmail),
+        seed: () => SignUpState(
+            signUpForm: SignUpForm(
+                email: validEmail,
+                password: invalidPassword,
+                confirmedPassword: invalidConfirmedPassword)),
         act: (cubit) => cubit
           ..onPasswordChanged(validPasswordString)
           ..onConfirmedPasswordChanged(validConfirmedPasswordString),
-        expect: () => const <SignUpState>[
+        expect: () => const [
           SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: ConfirmedPassword.dirty(
-              password: validPasswordString,
-            ),
+            signUpForm: SignUpForm(email: validEmail, password: validPassword, confirmedPassword: invalidConfirmedPassword),
           ),
-          SignUpState(
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+          validFormSignUpState
         ],
       );
     });
@@ -207,12 +197,7 @@ void main() {
       blocTest<SignUpCubit, SignUpState>(
         'calls signUp with correct email/password/confirmedPassword',
         build: () => signUpCubit,
-        seed: () => SignUpState(
-          email: validEmail,
-          password: validPassword,
-          confirmedPassword: validConfirmedPassword,
-          isValid: true,
-        ),
+        seed: () => validFormSignUpState,
         act: (cubit) => cubit.onSignUpFormSubmitted(),
         verify: (_) {
           verify(
@@ -228,28 +213,13 @@ void main() {
         'emits [inProgress, success] '
         'when signUp succeeds',
         build: () => signUpCubit,
-        seed: () => SignUpState(
-          email: validEmail,
-          password: validPassword,
-          confirmedPassword: validConfirmedPassword,
-          isValid: true,
-        ),
+        seed: () => validFormSignUpState,
         act: (cubit) => cubit.onSignUpFormSubmitted(),
         expect: () => const <SignUpState>[
           SignUpState(
-            status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.inProgress, signUpForm: validForm),
           SignUpState(
-            status: FormzSubmissionStatus.success,
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.success, signUpForm: validForm),
         ],
       );
 
@@ -265,29 +235,15 @@ void main() {
           ).thenThrow(SignUpWithEmailAndPasswordFailure('oops'));
         },
         build: () => signUpCubit,
-        seed: () => SignUpState(
-          email: validEmail,
-          password: validPassword,
-          confirmedPassword: validConfirmedPassword,
-          isValid: true,
-        ),
+        seed: () => validFormSignUpState,
         act: (cubit) => cubit.onSignUpFormSubmitted(),
         expect: () => const <SignUpState>[
           SignUpState(
-            status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.inProgress, signUpForm: validForm),
           SignUpState(
-            status: FormzSubmissionStatus.failure,
-            errorMessage: 'oops',
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.failure,
+              errorMessage: 'oops',
+              signUpForm: validForm),
         ],
       );
 
@@ -303,28 +259,13 @@ void main() {
           ).thenThrow(Exception('oops'));
         },
         build: () => signUpCubit,
-        seed: () => SignUpState(
-          email: validEmail,
-          password: validPassword,
-          confirmedPassword: validConfirmedPassword,
-          isValid: true,
-        ),
+        seed: () => validFormSignUpState,
         act: (cubit) => cubit.onSignUpFormSubmitted(),
         expect: () => const <SignUpState>[
           SignUpState(
-            status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.inProgress, signUpForm: validForm),
           SignUpState(
-            status: FormzSubmissionStatus.failure,
-            email: validEmail,
-            password: validPassword,
-            confirmedPassword: validConfirmedPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.failure, signUpForm: validForm),
         ],
       );
     });

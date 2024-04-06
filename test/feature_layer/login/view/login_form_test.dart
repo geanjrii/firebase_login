@@ -26,7 +26,8 @@ void main() {
   const createAccountButtonKey = Key('loginForm_createAccount_flatButton');
 
   const testEmail = 'test@gmail.com';
-  const testPassword = 'testP@ssw0rd1';
+  const testPassword = 'testPssw0rd1';
+  const invalidEmail = 'invalid email';
 
   group('LoginForm', () {
     late LoginCubit loginCubit;
@@ -45,7 +46,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -60,7 +61,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -72,14 +73,19 @@ void main() {
       testWidgets('logInWithCredentials when login button is pressed',
           (tester) async {
         when(() => loginCubit.state).thenReturn(
-          const LoginState(isValid: true),
+          const LoginState(
+            loginForm: LoginForm(
+              email: Email.dirty(testEmail),
+              password: Password.dirty(testPassword),
+            ),
+          ),
         );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -95,7 +101,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -120,7 +126,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -133,13 +139,17 @@ void main() {
           (tester) async {
         final email = MockEmail();
         when(() => email.displayError).thenReturn(EmailValidationError.invalid);
-        when(() => loginCubit.state).thenReturn(LoginState(email: email));
+        when(() => loginCubit.state).thenReturn(
+            const LoginState(
+            loginForm: LoginForm(email: Email.dirty(invalidEmail)),
+          ),
+        );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -153,13 +163,17 @@ void main() {
         when(
           () => password.displayError,
         ).thenReturn(PasswordValidationError.invalid);
-        when(() => loginCubit.state).thenReturn(LoginState(password: password));
+        when(() => loginCubit.state).thenReturn(
+           LoginState(
+            loginForm: LoginForm(password: password),
+          ),
+        );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -175,7 +189,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -189,14 +203,19 @@ void main() {
       testWidgets('enabled login button when status is validated',
           (tester) async {
         when(() => loginCubit.state).thenReturn(
-          const LoginState(isValid: true),
+          const LoginState(
+            loginForm: LoginForm(
+              email: Email.dirty(testEmail),
+              password: Password.dirty(testPassword),
+            ),
+          ),
         );
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -213,7 +232,7 @@ void main() {
             home: Scaffold(
               body: BlocProvider.value(
                 value: loginCubit,
-                child: const LoginForm(),
+                child: const LoginPage(),
               ),
             ),
           ),
@@ -232,7 +251,7 @@ void main() {
               home: Scaffold(
                 body: BlocProvider.value(
                   value: loginCubit,
-                  child: const LoginForm(),
+                  child: const LoginPage(),
                 ),
               ),
             ),
@@ -240,7 +259,7 @@ void main() {
         );
         await tester.tap(find.byKey(createAccountButtonKey));
         await tester.pumpAndSettle();
-        expect(find.byType(SignUpPage), findsOneWidget);
+        expect(find.byType(SignUpView), findsOneWidget);
       });
     });
   });

@@ -12,25 +12,22 @@ class LoginCubit extends Cubit<LoginState> {
   final AuthenticationRepository _authenticationRepository;
 
   void onEmailChanged(String value) {
-    final email = Email.dirty(value);
-    final isValid = Formz.validate([email, state.password]);
-    emit(state.copyWith(email: email, isValid: isValid));
+    emit(state.copyWith(
+        loginForm: state.loginForm.copyWith(email: Email.dirty(value))));
   }
 
   void onPasswordChanged(String value) {
-    final password = Password.dirty(value);
-    final isValid = Formz.validate([state.email, password]);
-    emit(state.copyWith(password: password, isValid: isValid));
+    emit(state.copyWith(
+        loginForm: state.loginForm.copyWith(password: Password.dirty(value))));
   }
 
   Future<void> onLogInWithCredentials() async {
-    final isInvalid = !state.isValid;
-    if (isInvalid) return;
+    if (state.loginForm.isInvalid) return;
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
     try {
       await _authenticationRepository.logInWithEmailAndPassword(
-        email: state.email.value,
-        password: state.password.value,
+        email: state.loginForm.email.value,
+        password: state.loginForm.password.value,
       );
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } on LogInWithEmailAndPasswordFailure catch (e) {

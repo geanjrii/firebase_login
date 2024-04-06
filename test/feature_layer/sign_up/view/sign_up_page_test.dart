@@ -12,17 +12,17 @@ class MockAuthenticationRepository extends Mock
 void main() {
   group('SignUpPage', () {
     test('has a route', () {
-      expect(SignUpPage.route(), isA<MaterialPageRoute<void>>());
+      expect(SignUpView.route(), isA<MaterialPageRoute<void>>());
     });
 
     testWidgets('renders a SignUpForm', (tester) async {
       await tester.pumpWidget(
         RepositoryProvider<AuthenticationRepository>(
           create: (_) => MockAuthenticationRepository(),
-          child: MaterialApp(home: SignUpPage()),
+          child: MaterialApp(home: SignUpView()),
         ),
       );
-      expect(find.byType(SignUpForm), findsOneWidget);
+      expect(find.byType(SignUpPage), findsOneWidget);
     });
   });
 }

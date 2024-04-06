@@ -23,6 +23,9 @@ void main() {
   const validPasswordString = 't0pS3cret1234';
   const validPassword = Password.dirty(validPasswordString);
 
+  const validForm = LoginForm(email: validEmail, password: validPassword);
+  const validFormLoginState = LoginState(loginForm: validForm);
+
   group('LoginCubit', () {
     late AuthenticationRepository authenticationRepository;
     late LoginCubit loginCubit;
@@ -52,21 +55,16 @@ void main() {
         'emits [invalid] when email/password are invalid',
         build: () => loginCubit,
         act: (cubit) => cubit.onEmailChanged(invalidEmailString),
-        expect: () => const <LoginState>[LoginState(email: invalidEmail)],
+        expect: () =>
+            const [LoginState(loginForm: LoginForm(email: invalidEmail))],
       );
 
       blocTest<LoginCubit, LoginState>(
         'emits [valid] when email/password are valid',
         build: () => loginCubit,
-        seed: () => LoginState(password: validPassword),
+        seed: () => LoginState(loginForm: LoginForm(password: validPassword)),
         act: (cubit) => cubit.onEmailChanged(validEmailString),
-        expect: () => const <LoginState>[
-          LoginState(
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
-          ),
-        ],
+        expect: () => const [validFormLoginState],
       );
     });
 
@@ -75,21 +73,16 @@ void main() {
         'emits [invalid] when email/password are invalid',
         build: () => loginCubit,
         act: (cubit) => cubit.onPasswordChanged(invalidPasswordString),
-        expect: () => const <LoginState>[LoginState(password: invalidPassword)],
+        expect: () =>
+            const [LoginState(loginForm: LoginForm(password: invalidPassword))],
       );
 
       blocTest<LoginCubit, LoginState>(
         'emits [valid] when email/password are valid',
         build: () => loginCubit,
-        seed: () => LoginState(email: validEmail),
+        seed: () => LoginState(loginForm: LoginForm(email: validEmail)),
         act: (cubit) => cubit.onPasswordChanged(validPasswordString),
-        expect: () => const <LoginState>[
-          LoginState(
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
-          ),
-        ],
+        expect: () => const <LoginState>[validFormLoginState],
       );
     });
 
@@ -105,10 +98,7 @@ void main() {
         'calls logInWithEmailAndPassword with correct email/password',
         build: () => loginCubit,
         seed: () => LoginState(
-          email: validEmail,
-          password: validPassword,
-          isValid: true,
-        ),
+            loginForm: LoginForm(email: validEmail, password: validPassword)),
         act: (cubit) => cubit.onLogInWithCredentials(),
         verify: (_) {
           verify(
@@ -125,24 +115,13 @@ void main() {
         'when logInWithEmailAndPassword succeeds',
         build: () => loginCubit,
         seed: () => LoginState(
-          email: validEmail,
-          password: validPassword,
-          isValid: true,
-        ),
+            loginForm: LoginForm(email: validEmail, password: validPassword)),
         act: (cubit) => cubit.onLogInWithCredentials(),
         expect: () => const <LoginState>[
           LoginState(
-            status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.inProgress, loginForm: validForm),
           LoginState(
-            status: FormzSubmissionStatus.success,
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
-          ),
+              status: FormzSubmissionStatus.success, loginForm: validForm),
         ],
       );
 
@@ -160,24 +139,17 @@ void main() {
         },
         build: () => loginCubit,
         seed: () => LoginState(
-          email: validEmail,
-          password: validPassword,
-          isValid: true,
-        ),
+            loginForm: LoginForm(email: validEmail, password: validPassword)),
         act: (cubit) => cubit.onLogInWithCredentials(),
         expect: () => const <LoginState>[
           LoginState(
             status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
+            loginForm: validForm,
           ),
           LoginState(
             status: FormzSubmissionStatus.failure,
             errorMessage: 'oops',
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
+            loginForm: validForm,
           ),
         ],
       );
@@ -195,23 +167,16 @@ void main() {
         },
         build: () => loginCubit,
         seed: () => LoginState(
-          email: validEmail,
-          password: validPassword,
-          isValid: true,
-        ),
+            loginForm: LoginForm(email: validEmail, password: validPassword)),
         act: (cubit) => cubit.onLogInWithCredentials(),
         expect: () => const <LoginState>[
           LoginState(
             status: FormzSubmissionStatus.inProgress,
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
+            loginForm: validForm,
           ),
           LoginState(
             status: FormzSubmissionStatus.failure,
-            email: validEmail,
-            password: validPassword,
-            isValid: true,
+            loginForm: validForm,
           ),
         ],
       );
